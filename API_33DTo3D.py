@@ -205,7 +205,7 @@ def API_src3D_sRt_dis3D_list(points_src,points_dst,SR,T):
     return points_dis_t_list
     
 
-
+'''
 if __name__ == "__main__":
     
     
@@ -215,3 +215,38 @@ if __name__ == "__main__":
     # points_dis_t_list=API_src3D_sRt_dis3D_list(points_src,points_dst,SR, T)
     # print("变换后的列表",points_dis_t_list)
 
+'''
+
+'''
+    # # 4 数据转化 为3D-3D计算相似变换准备  colmap enu 变换到 gnss enu坐标系上
+    # #ENU_List  :名字 e n u 转化为:  e n u
+    # 4-1 读取gnss enu
+    # 取出前400个数据计算
+    ENU_GNSS_List_4= API_read2txt("data/test/2ENU_from_GNSS.txt")
+    ENU_GNSS_List_4_400=[]
+    for i in range(160 , len(ENU_GNSS_List_4)):
+        ENU_GNSS_List_4_400.append(ENU_GNSS_List_4[i]) 
+    ENU_GNSS_List_3_400=API_data0123_to_data123(ENU_GNSS_List_4_400) # 去掉第一列名字
+    
+    # 4-2 读取colmap enu
+    ENU_colmap_list_4= API_read2txt("data/test/colmap_images_t.txt")
+    ENU_colmap_list_3=API_data0123_to_data123(ENU_colmap_list_4) # 去掉第一列名字
+
+    # 4-4 计算变换关系 points_src 到 points_dst
+    points_src=ENU_colmap_list_3
+    points_dst=ENU_GNSS_List_3_400 #ENU_GNSS_List_3_400
+    RT_34, SR, T = API_pose_estimation_3dTo3d_ransac(points_src, points_dst) # 
+   
+    colmapenu_in_gnssenu_3=API_src3D_sRt_dis3D_list(points_src,points_dst,SR, T)
+    
+    # 4-5 保存计算结果 colmap enu变换到gnss enu坐标系下的新坐标
+    colmapenu_in_gnssenu_4=[]
+    for i in range(0,len(ENU_GNSS_List_4_400)):
+        name=ENU_GNSS_List_4[i][0]
+        #保存数据 名字 e n u
+        li=[name,colmapenu_in_gnssenu_3[i][0],colmapenu_in_gnssenu_3[i][1],colmapenu_in_gnssenu_3[i][2]]
+        colmapenu_in_gnssenu_4.append(li)
+    # 保存数据
+    colmapeEnu_from_GnssEnu_txt_name="data/test/3colmapeEnu_from_GnssEnu.txt"
+    API_Save2txt(colmapeEnu_from_GnssEnu_txt_name,colmapenu_in_gnssenu_4)
+'''
