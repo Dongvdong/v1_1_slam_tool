@@ -2,10 +2,13 @@
 from API_2Gps22ENU import *
 from API_33DTo3D import *
 
+    
 
 
 ##===========================================================
 if __name__ == "__main__":
+
+    '''
     # 参数
     # 0-1 gps照片路径
     #img_path_dir="0测试数据/d1_100mRTKColmap/images/gps_images/"
@@ -32,7 +35,7 @@ if __name__ == "__main__":
     # #ENU_List  :名字 e n u 转化为:  e n u
     # 4-1 读取gnss enu
     # 取出前400个数据计算
-    ENU_GNSS_List_4= API_read2txt(ENU_txt_name)
+    ENU_GNSS_List_4= API_read2txt("data/test/2ENU_from_GNSS.txt")
     ENU_GNSS_List_4_400=[]
     for i in range(160 , len(ENU_GNSS_List_4)):
         ENU_GNSS_List_4_400.append(ENU_GNSS_List_4[i]) 
@@ -46,8 +49,6 @@ if __name__ == "__main__":
     points_src=ENU_colmap_list_3
     points_dst=ENU_GNSS_List_3_400 #ENU_GNSS_List_3_400
     RT_34, SR, T = API_pose_estimation_3dTo3d_ransac(points_src, points_dst) # 
-
-    s, R, t=API_pose_estimation_3dTo3d(points_src, points_dst)
    
     colmapenu_in_gnssenu_3=API_src3D_sRt_dis3D_list(points_src,points_dst,SR, T)
     
@@ -83,3 +84,17 @@ if __name__ == "__main__":
     GNSS_From_ENU_txt_name="data/test/3colmapenu_to_gnss.txt"
     API_Save2txt(GNSS_From_ENU_txt_name,GNSS_list_from_enu)
     # 5-5 调用可视化软件可视化轨迹 
+    '''
+
+
+    path_txt="0测试数据1/d1_100mRTKColmap/sparse/0/"
+
+    cameras_path=path_txt+"cameras.txt"
+    points3D_path=path_txt+"points3D.txt"
+    images_path=path_txt+"images.txt"
+    
+    from API_0File_Read_Write import *
+    cam_id=1# 相机的编号 视频帧还是照片帧
+    pose_list=Read_pose_from_colamp_sparse(images_path,cam_id)
+    #print(pose_list)
+    API_Save2txt("colmap_nogps_pose.txt",pose_list)

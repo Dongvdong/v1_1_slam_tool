@@ -68,6 +68,75 @@ def API_read2txt(txt_name):
             #print(row)
     return Gnss_list
 
+
+def Read_pose_from_colamp_sparse(txt_name, cam_ID=1):
+    
+    print(txt_name,"读取colamp_sparse txt数据成功")
+    #cam_ID=1 # 需要提取的相机位姿
+    pose_list = []
+    with open(txt_name, 'r') as file:
+        line_i=0
+        for line in file:
+            if line_i<=3:
+                '''
+                # 0 Image list with two lines of data per image:
+                # 1  IMAGE_ID, QW, QX, QY, QZ, TX, TY, TZ, CAMERA_ID, NAME
+                # 2  POINTS2D[] as (X, Y, POINT3D_ID)
+                # 3 Number of images: 600, mean observations per image: 8259.4249999999993
+                '''
+                print("行",line_i,"信息说明",line)
+                line_i=line_i+1
+                
+                continue
+
+           
+            if line_i%2==0: # 奇数  IMAGE_ID, QW, QX, QY, QZ, TX, TY, TZ, CAMERA_ID, NAME
+                #row = list(map(float, line.split(' '))) #map(float 全部转化为 float
+
+                line=line.replace('\n', '')# 去除空格
+
+                row = list(line.split(' '))#按照空格切割
+                IMAGE_ID=float(row[0])
+                QW=float(row[1])
+                QX=float(row[2])
+                QY=float(row[3])
+                QZ=float(row[4])
+                TX=float(row[5])
+                TY=float(row[6])
+                TZ=float(row[7])
+                CAMERA_ID=int(row[8])
+                IMAGE_NAME=row[9]
+
+                print("IMAGE_ID:",IMAGE_ID,"IMAGE_NAME:",IMAGE_NAME,"CAMERA_ID",CAMERA_ID,"Qwxyz:",QW,QX,QY,QZ,"Txyz:",TX,TY,TZ)
+                if cam_ID==CAMERA_ID:
+                    pose_i=[IMAGE_NAME,TX,TY,TZ,QW,QX,QY,QZ,CAMERA_ID]
+                    pose_list.append(pose_i)
+                    
+            '''
+            elif  line_i%2==1:#偶数   POINTS2D[] as (X, Y, POINT3D_ID)
+ 
+                continue
+                # 是否需要读取3D点 
+                
+                line=line.replace('\n', '')# 去除空格
+                row = list(line.split(' '))#按照空格切割
+                j=0
+                i=0
+                while j < len(row):
+                    
+                    x=row[j]
+                    y=row[j+1]
+                    point_3d_id=row[j+2]
+                    
+                    print("序号",i,"像素坐标",x,y,"3D点ID",point_3d_id)
+                    j=j+3
+                    i=i+1
+            '''
+            line_i=line_i+1
+    return pose_list
+   
+
+   
 # def API_txt_to_Draw3D(list_name_xyz):
    
     
