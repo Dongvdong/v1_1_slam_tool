@@ -130,10 +130,17 @@ def API_pose_estimation_3dTo3d_ransac(points_src, points_dst): #NED -> slam
     # 在寻找旋转矩阵时，有一种特殊情况需要注意。有时SVD会返回一个“反射”矩阵，这在数值上是正确的，但在现实生活中实际上是无意义的。
     # 通过检查R的行列式（来自上面的SVD）并查看它是否为负（-1）来解决。如果是，则V的第三列乘以-1。
     # 验证R行列式是否为负数   参考链接:https://blog.csdn.net/sinat_29886521/article/details/77506426
+    # R为-1 会导致两个平面计算方向相反 导致T方向相反 所以要吧R取符号 
+    # 方案1 R=SD的逆=UV的逆 V第三列取负号
+    # 方案2 按照SLam14讲解R的第三行给负1
     if np.linalg.det(R) < 0:
-        det = np.linalg.det(np.matmul(U, VT))
-        mat = np.array([[1, 0, 0], [0, 1, 0], [0, 0, det]])
-        R = np.matmul(U, VT, mat)
+        R_temp=np.matmul(U, VT) # R=SD=UV的转置
+        R_temp_det = np.linalg.det(R_temp) #其实就是-1
+        # VT 第三列给负号
+        VT_3col_to_fu1 = np.array([[1, 0, 0], [0, 1, 0], [0, 0, R_temp_det]])
+        VT_new= np.matmul(VT, VT_3col_to_fu1)
+        # 重新计算 R  等同于R的第三列直接取负号
+        R = np.matmul(U, VT_new)
     # 平移向量
     T = mean_q - np.matmul(R, mean_p)   # dst - src
     T = T.reshape(3, 1)
